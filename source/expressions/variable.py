@@ -32,5 +32,11 @@ class Variable(Expression):
     def zero_gradient(self):
         self._gradient = 0.0
 
+    def _collect_variables(self, out: list, seen: set) -> None:
+        if id(self) in seen:
+            return
+        seen.add(id(self))
+        out.append(self)
+
     def __repr__(self) -> str:
         return f"Var(value={self._value}, name={self._name})"
