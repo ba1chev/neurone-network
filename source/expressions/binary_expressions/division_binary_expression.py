@@ -1,5 +1,6 @@
 from source.expressions.expression import Expression
 from source.expressions.binary_expressions.binary_expression import BinaryExpression
+from source.constants import ERROR_DIVIDE_BY_ZERO
 
 
 class DivisionBinaryExpression(BinaryExpression):
@@ -11,7 +12,7 @@ class DivisionBinaryExpression(BinaryExpression):
         self._left_value = self._left_expr.forward()
         self._right_value = self._right_expr.forward()
         if self._right_value == 0:
-            raise RuntimeError("Cannot divide by zero")
+            raise RuntimeError(ERROR_DIVIDE_BY_ZERO)
         return self._left_value / self._right_value
 
     def backward(self, gradient: float) -> None:
