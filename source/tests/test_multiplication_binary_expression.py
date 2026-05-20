@@ -26,7 +26,6 @@ class TestMultiplicationBinaryExpression(unittest.TestCase):
         expr = MultiplicationBinaryExpression(a, b)
         expr.forward()
         expr.backward(1.0)
-        # d(ab)/da = b = 4, d(ab)/db = a = 3
         self.assertEqual(a.gradient, 4.0)
         self.assertEqual(b.gradient, 3.0)
 
@@ -36,14 +35,13 @@ class TestMultiplicationBinaryExpression(unittest.TestCase):
         expr = MultiplicationBinaryExpression(a, b)
         expr.forward()
         expr.backward(2.0)
-        self.assertEqual(a.gradient, 10.0)  # 5 * 2
-        self.assertEqual(b.gradient, 4.0)   # 2 * 2
+        self.assertEqual(a.gradient, 10.0)
+        self.assertEqual(b.gradient, 4.0)
 
     def test_backward_requires_forward_first(self):
         a = Variable(2.0, "a")
         b = Variable(5.0, "b")
         expr = MultiplicationBinaryExpression(a, b)
-        # forward caches operand values; without it backward should fail
         with self.assertRaises(AttributeError):
             expr.backward(1.0)
 
@@ -53,7 +51,6 @@ class TestMultiplicationBinaryExpression(unittest.TestCase):
         expr = MultiplicationBinaryExpression(a, b)
         expr.forward()
         expr.backward(1.0)
-        # d(ab)/da = b = 7, d(ab)/db = a = 0
         self.assertEqual(a.gradient, 7.0)
         self.assertEqual(b.gradient, 0.0)
 
@@ -62,7 +59,6 @@ class TestMultiplicationBinaryExpression(unittest.TestCase):
         expr = MultiplicationBinaryExpression(x, x)
         self.assertEqual(expr.forward(), 9.0)
         expr.backward(1.0)
-        # d(x^2)/dx = 2x = 6 → accumulated from both sides
         self.assertEqual(x.gradient, 6.0)
 
 
