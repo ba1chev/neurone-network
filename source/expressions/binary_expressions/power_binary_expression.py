@@ -2,6 +2,7 @@ import math
 
 from source.expressions.expression import Expression
 from source.expressions.binary_expressions.binary_expression import BinaryExpression
+from source.constants import ERROR_POW_NEGATIVE_BASE, ERROR_POW_ZERO_NEGATIVE_EXP
 
 
 class PowerBinaryExpression(BinaryExpression):
@@ -13,9 +14,9 @@ class PowerBinaryExpression(BinaryExpression):
         self._left_value = self._left_expr.forward()
         self._right_value = self._right_expr.forward()
         if self._left_value < 0 and not float(self._right_value).is_integer():
-            raise RuntimeError("Cannot raise negative base to non-integer exponent")
+            raise RuntimeError(ERROR_POW_NEGATIVE_BASE)
         if self._left_value == 0 and self._right_value < 0:
-            raise RuntimeError("Cannot raise zero to negative exponent")
+            raise RuntimeError(ERROR_POW_ZERO_NEGATIVE_EXP)
         self._result = self._left_value ** self._right_value
         return self._result
 
