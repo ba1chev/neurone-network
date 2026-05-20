@@ -2,6 +2,7 @@ import math
 
 from source.expressions.expression import Expression
 from source.expressions.unary_expressions.unary_expression import UnaryExpression
+from source.constants import ERROR_LOG_NON_POSITIVE
 
 
 class LogUnaryExpression(UnaryExpression):
@@ -12,7 +13,7 @@ class LogUnaryExpression(UnaryExpression):
         # pre-caching for better performance
         self._value = self._expr.forward()
         if self._value <= 0:
-            raise RuntimeError("Cannot take log of non-positive value")
+            raise RuntimeError(ERROR_LOG_NON_POSITIVE)
         return math.log(self._value)
 
     def backward(self, gradient: float) -> None:
