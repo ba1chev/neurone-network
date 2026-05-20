@@ -17,7 +17,7 @@ class TestVariableCollection(unittest.TestCase):
         a = Variable(1.0, "a")
         b = Variable(2.0, "b")
         expr = a + b
-        result = expr.variables()
+        result = expr.get_variables()
         self.assertEqual(len(result), 2)
         self.assertIn(a, result)
         self.assertIn(b, result)
@@ -25,18 +25,18 @@ class TestVariableCollection(unittest.TestCase):
     def test_constants_filtered_out(self):
         a = Variable(1.0, "a")
         expr = a * 5 + 2
-        result = expr.variables()
+        result = expr.get_variables()
         self.assertEqual(result, [a])
 
     def test_unary_descends(self):
         x = Variable(1.0, "x")
         expr = -x
-        self.assertEqual(expr.variables(), [x])
+        self.assertEqual(expr.get_variables(), [x])
 
     def test_deep_tree(self):
         a, b, c = Variable(1.0, "a"), Variable(2.0, "b"), Variable(3.0, "c")
         expr = (a + b) * c - a / b
-        result = expr.variables()
+        result = expr.get_variables()
         self.assertEqual(len(result), 3)
         for v in (a, b, c):
             self.assertIn(v, result)
@@ -44,7 +44,7 @@ class TestVariableCollection(unittest.TestCase):
     def test_shared_variable_deduplicated(self):
         x = Variable(2.0, "x")
         expr = x * x + x
-        result = expr.variables()
+        result = expr.get_variables()
         self.assertEqual(result, [x])
 
 
