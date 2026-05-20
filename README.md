@@ -1,1 +1,1 @@
-# neurone-network
+A from-scratch automatic differentiation engine and small neural network library in pure Python.
