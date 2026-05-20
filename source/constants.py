@@ -23,3 +23,6 @@ ERROR_POW_ZERO_NEGATIVE_EXP = "Cannot raise zero to negative exponent"
 ERROR_LOSS_EMPTY = "Loss requires at least one prediction"
 ERROR_LOSS_LENGTH_MISMATCH = "Predictions and targets must have the same length"
 ERROR_BCE_PROBABILITY_OUT_OF_RANGE = "BinaryCrossEntropy predictions must lie in (0, 1)"
+
+ERROR_LEARNING_RATE_NON_POSITIVE = "Learning rate must be positive"
+ERROR_OPTIMIZER_NO_PARAMETERS = "Optimizer requires at least one parameter"
