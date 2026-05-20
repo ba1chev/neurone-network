@@ -1,5 +1,7 @@
 import unittest
 
+import source.expressions.operators  # registers operators on Expression
+
 from source.expressions.variable import Variable
 from source.expressions.unary_expressions.abs_unary_expression import AbsUnaryExpression
 from source.expressions.binary_expressions.power_binary_expression import PowerBinaryExpression
