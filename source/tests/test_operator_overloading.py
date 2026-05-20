@@ -81,7 +81,6 @@ class TestOperatorOverloading(unittest.TestCase):
         self.assertEqual(expr.forward(), 2.0)
 
     def test_left_scalar_pow(self):
-        # 2 ** y at y=3 → 8
         expr = 2 ** Variable(3.0, "y")
         self.assertAlmostEqual(expr.forward(), 8.0)
 
@@ -99,7 +98,6 @@ class TestOperatorOverloading(unittest.TestCase):
         self.assertEqual(c.gradient, 3.0)
 
     def test_polynomial_via_overloading(self):
-        # df/dx = 4x + 3 = 19
         x = Variable(4.0, "x")
         expr = 2 * x ** 2 + 3 * x + 1
         self.assertAlmostEqual(expr.forward(), 45.0)
@@ -122,7 +120,7 @@ class TestOperatorOverloading(unittest.TestCase):
 
     def test_constant_stays_constant_in_overload(self):
         x = Variable(2.0, "x")
-        expr = x * 5  # 5 → Constant(5.0)
+        expr = x * 5
         self.assertEqual(expr.forward(), 10.0)
         expr.backward(1.0)
         self.assertEqual(x.gradient, 5.0)
