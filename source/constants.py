@@ -6,7 +6,7 @@ from source.expressions.unary_expressions.sigmoid_unary_expression import Sigmoi
 ACTIVATIONS = {
     "sigmoid": SigmoidUnaryExpression,
     "relu": ReluUnaryExpression,
-    "tanh": TanhUnaryExpression,
+    "tanh": TanhUnaryExpression
 }
 
 INITIAL_GRADIENT: float = 0.0
