@@ -19,3 +19,7 @@ ERROR_SQRT_GRAD_AT_ZERO = "sqrt gradient is undefined at zero"
 ERROR_RECIPROCAL_OF_ZERO = "Cannot take reciprocal of zero"
 ERROR_POW_NEGATIVE_BASE = "Cannot raise negative base to non-integer exponent"
 ERROR_POW_ZERO_NEGATIVE_EXP = "Cannot raise zero to negative exponent"
+
+ERROR_LOSS_EMPTY = "Loss requires at least one prediction"
+ERROR_LOSS_LENGTH_MISMATCH = "Predictions and targets must have the same length"
+ERROR_BCE_PROBABILITY_OUT_OF_RANGE = "BinaryCrossEntropy predictions must lie in (0, 1)"
