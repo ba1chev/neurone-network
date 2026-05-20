@@ -1,67 +1,54 @@
 import unittest
+import numpy as np
 
 from source.expressions.variable import Variable
-from source.expressions.expression import Expression
 
 
-class TestVariable(unittest.TestCase):
-    def test_is_expression(self):
-        self.assertIsInstance(Variable(1.0, "x"), Expression)
+class TestVariableBasics(unittest.TestCase):
+    def test_value_stored_as_float64(self):
+        variable = Variable(np.array([1, 2, 3]), "x")
+        self.assertEqual(variable.value.dtype, np.float64)
 
     def test_forward_returns_value(self):
-        self.assertEqual(Variable(2.5, "x").forward(), 2.5)
+        variable = Variable(np.array([1.0, 2.0]), "x")
+        np.testing.assert_array_equal(variable.forward(), np.array([1.0, 2.0]))
 
-    def test_initial_gradient_is_zero(self):
-        self.assertEqual(Variable(1.0, "x").gradient, 0.0)
+    def test_initial_gradient_is_zeros_like_value(self):
+        variable = Variable(np.array([[1.0, 2.0], [3.0, 4.0]]), "x")
+        np.testing.assert_array_equal(variable.gradient, np.zeros((2, 2)))
 
-    def test_value_property(self):
-        v = Variable(3.0, "x")
-        self.assertEqual(v.value, 3.0)
+    def test_repr_contains_name_and_shape(self):
+        variable = Variable(np.array([1.0, 2.0]), "weight_one")
+        text = repr(variable)
+        self.assertIn("weight_one", text)
+        self.assertIn("(2,)", text)
 
-    def test_value_setter_updates_forward(self):
-        v = Variable(1.0, "x")
-        v.value = 5.0
-        self.assertEqual(v.value, 5.0)
-        self.assertEqual(v.forward(), 5.0)
 
+class TestVariableGradientAccumulation(unittest.TestCase):
     def test_backward_accumulates_gradient(self):
-        v = Variable(1.0, "x")
-        v.backward(2.0)
-        v.backward(3.0)
-        self.assertEqual(v.gradient, 5.0)
+        variable = Variable(np.array([1.0, 1.0]), "x")
+        variable.backward(np.array([0.5, 0.5]))
+        variable.backward(np.array([0.25, 0.25]))
+        np.testing.assert_array_almost_equal(variable.gradient, np.array([0.75, 0.75]))
 
-    def test_backward_with_negative_gradient(self):
-        v = Variable(1.0, "x")
-        v.backward(4.0)
-        v.backward(-1.5)
-        self.assertEqual(v.gradient, 2.5)
+    def test_zero_gradient_resets_to_zeros(self):
+        variable = Variable(np.array([1.0, 1.0]), "x")
+        variable.backward(np.array([5.0, 5.0]))
+        variable.zero_gradient()
+        np.testing.assert_array_equal(variable.gradient, np.zeros(2))
 
-    def test_gradient_setter(self):
-        v = Variable(1.0, "x")
-        v.gradient = 7.0
-        self.assertEqual(v.gradient, 7.0)
+    def test_value_setter_recasts_to_float64(self):
+        variable = Variable(np.array([1.0]), "x")
+        variable.value = np.array([42], dtype=np.int32)
+        self.assertEqual(variable.value.dtype, np.float64)
 
-    def test_zero_gradient_resets(self):
-        v = Variable(1.0, "x")
-        v.backward(10.0)
-        self.assertEqual(v.gradient, 10.0)
-        v.zero_gradient()
-        self.assertEqual(v.gradient, 0.0)
-
-    def test_zero_gradient_after_setter(self):
-        v = Variable(1.0, "x")
-        v.gradient = 4.0
-        v.zero_gradient()
-        self.assertEqual(v.gradient, 0.0)
-
-    def test_forward_does_not_change_gradient(self):
-        v = Variable(2.0, "x")
-        v.forward()
-        v.forward()
-        self.assertEqual(v.gradient, 0.0)
-
-    def test_repr(self):
-        self.assertEqual(repr(Variable(2.0, "x")), "Var(value=2.0, name=x)")
+    def test_collect_variables_dedups_by_id(self):
+        variable = Variable(np.array([1.0]), "x")
+        out: list = []
+        seen: set = set()
+        variable._collect_variables(out, seen)
+        variable._collect_variables(out, seen)
+        self.assertEqual(len(out), 1)
 
 
 if __name__ == "__main__":

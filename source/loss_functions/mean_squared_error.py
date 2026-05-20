@@ -1,20 +1,17 @@
-from typing import List
+import numpy as np
 
 import source.expressions.operators  # registers operators on Expression
 from source.expressions.constant import Constant
 from source.expressions.expression import Expression
 from source.loss_functions.loss_function import LossFunction
-from source.constants import ERROR_LOSS_EMPTY, ERROR_LOSS_LENGTH_MISMATCH
+from source.expressions.reduction_expressions.mean_reduction_expression import MeanReductionExpression
+from source.constants import ERROR_LOSS_EMPTY
 
 
 class MeanSquaredError(LossFunction):
-    def compute(self, predictions: List[Expression], targets: List[float]) -> Expression:
-        if len(predictions) == 0:
+    def compute(self, predictions: Expression, targets: np.ndarray) -> Expression:
+        targets_array: np.ndarray = np.asarray(targets, dtype=np.float64)
+        if targets_array.size == 0:
             raise ValueError(ERROR_LOSS_EMPTY)
-        if len(predictions) != len(targets):
-            raise ValueError(ERROR_LOSS_LENGTH_MISMATCH)
-
-        squared_errors: Expression = (predictions[0] - Constant(targets[0])) ** Constant(2.0)
-        for prediction, target in zip(predictions[1:], targets[1:]):
-            squared_errors = squared_errors + (prediction - Constant(target)) ** Constant(2.0)
-        return squared_errors / Constant(float(len(predictions)))
+        difference: Expression = predictions - Constant(targets_array)
+        return MeanReductionExpression(difference * difference)

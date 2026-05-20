@@ -1,27 +1,23 @@
-from typing import List
+import numpy as np
 
 import source.expressions.operators  # registers operators on Expression
 from source.expressions.constant import Constant
 from source.expressions.expression import Expression
 from source.loss_functions.loss_function import LossFunction
 from source.expressions.unary_expressions.log_unary_expression import LogUnaryExpression
-from source.constants import ERROR_LOSS_EMPTY, ERROR_LOSS_LENGTH_MISMATCH
+from source.expressions.reduction_expressions.mean_reduction_expression import MeanReductionExpression
+from source.constants import ERROR_LOSS_EMPTY
 
 
 class BinaryCrossEntropy(LossFunction):
-    def compute(self, predictions: List[Expression], targets: List[float]) -> Expression:
-        if len(predictions) == 0:
+    def compute(self, predictions: Expression, targets: np.ndarray) -> Expression:
+        targets_array: np.ndarray = np.asarray(targets, dtype=np.float64)
+        if targets_array.size == 0:
             raise ValueError(ERROR_LOSS_EMPTY)
-        if len(predictions) != len(targets):
-            raise ValueError(ERROR_LOSS_LENGTH_MISMATCH)
-
-        total: Expression = self._term(predictions[0], targets[0])
-        for prediction, target in zip(predictions[1:], targets[1:]):
-            total = total + self._term(prediction, target)
-        return -total / Constant(float(len(predictions)))
-
-    def _term(self, prediction: Expression, target: float) -> Expression:
-        return (
-            Constant(target) * LogUnaryExpression(prediction)
-            + Constant(1.0 - target) * LogUnaryExpression(Constant(1.0) - prediction)
+        target_constant: Expression = Constant(targets_array)
+        one_constant: Expression = Constant(np.array(1.0))
+        per_sample: Expression = (
+            target_constant * LogUnaryExpression(predictions)
+            + (one_constant - target_constant) * LogUnaryExpression(one_constant - predictions)
         )
+        return -MeanReductionExpression(per_sample)

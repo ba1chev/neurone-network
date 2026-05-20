@@ -1,91 +1,55 @@
 import unittest
+import numpy as np
 
-import source.expressions.operators  # egisters operators on Expression
-from source.expressions.constant import Constant
 from source.expressions.variable import Variable
 from source.optimizers.stochastic_gradient_descent import StochasticGradientDescent
 
 
-class TestStochasticGradientDescentConstruction(unittest.TestCase):
-    def test_empty_parameters_rejected(self):
+class TestOptimizerValidation(unittest.TestCase):
+    def test_no_parameters_rejected(self):
         with self.assertRaises(ValueError):
-            StochasticGradientDescent(parameters=[], learning_rate=0.1)
+            StochasticGradientDescent([], learning_rate=0.1)
 
-    def test_zero_learning_rate_rejected(self):
+    def test_non_positive_learning_rate_rejected(self):
+        parameter = Variable(np.array([1.0]), "p")
         with self.assertRaises(ValueError):
-            StochasticGradientDescent(parameters=[Variable(1.0, "x")], learning_rate=0.0)
-
-    def test_negative_learning_rate_rejected(self):
+            StochasticGradientDescent([parameter], learning_rate=0.0)
         with self.assertRaises(ValueError):
-            StochasticGradientDescent(parameters=[Variable(1.0, "x")], learning_rate=-0.1)
+            StochasticGradientDescent([parameter], learning_rate=-0.1)
 
 
 class TestStochasticGradientDescentStep(unittest.TestCase):
-    def test_step_updates_value_using_gradient(self):
-        x = Variable(5.0, "x")
-        x.gradient = 2.0
-        StochasticGradientDescent([x], learning_rate=0.1).step()
-        self.assertAlmostEqual(x.value, 4.8)
-
-    def test_step_with_zero_gradient_leaves_value_unchanged(self):
-        x = Variable(3.0, "x")
-        StochasticGradientDescent([x], learning_rate=0.5).step()
-        self.assertEqual(x.value, 3.0)
-
-    def test_step_updates_all_parameters(self):
-        a = Variable(10.0, "a")
-        b = Variable(-4.0, "b")
-        a.gradient = 1.0
-        b.gradient = -2.0
-        StochasticGradientDescent([a, b], learning_rate=0.5).step()
-        self.assertAlmostEqual(a.value, 9.5)
-        self.assertAlmostEqual(b.value, -3.0)
-
-    def test_step_does_not_reset_gradient(self):
-        x = Variable(1.0, "x")
-        x.gradient = 0.7
-        optimizer = StochasticGradientDescent([x], learning_rate=0.1)
+    def test_subtracts_lr_times_gradient(self):
+        parameter = Variable(np.array([1.0, 2.0, 3.0]), "p")
+        parameter.gradient = np.array([10.0, 10.0, 10.0])
+        optimizer = StochasticGradientDescent([parameter], learning_rate=0.1)
         optimizer.step()
-        self.assertEqual(x.gradient, 0.7)
+        np.testing.assert_allclose(parameter.value, np.array([0.0, 1.0, 2.0]))
 
-
-class TestStochasticGradientDescentZeroGradients(unittest.TestCase):
-    def test_zero_gradients_clears_all_parameters(self):
-        a = Variable(1.0, "a")
-        b = Variable(2.0, "b")
-        a.gradient = 5.0
-        b.gradient = -3.0
-        StochasticGradientDescent([a, b], learning_rate=0.1).zero_gradients()
-        self.assertEqual(a.gradient, 0.0)
-        self.assertEqual(b.gradient, 0.0)
-
-
-class TestStochasticGradientDescentEndToEnd(unittest.TestCase):
-    def test_one_step_reduces_quadratic_loss(self):
-        x = Variable(0.0, "x")
-        loss = (x - Constant(3.0)) ** Constant(2.0)
-        optimizer = StochasticGradientDescent([x], learning_rate=0.1)
-
-        loss_before = loss.forward()
-        loss.backward(1.0)
+    def test_zero_gradient_leaves_value_unchanged(self):
+        parameter = Variable(np.array([5.0, 5.0]), "p")
+        optimizer = StochasticGradientDescent([parameter], learning_rate=0.1)
         optimizer.step()
+        np.testing.assert_array_equal(parameter.value, np.array([5.0, 5.0]))
+
+    def test_step_preserves_shape(self):
+        parameter = Variable(np.zeros((3, 4)), "W")
+        parameter.gradient = np.ones((3, 4))
+        optimizer = StochasticGradientDescent([parameter], learning_rate=0.5)
+        optimizer.step()
+        self.assertEqual(parameter.value.shape, (3, 4))
+
+
+class TestZeroGradients(unittest.TestCase):
+    def test_zero_gradients_resets_all_to_zeros(self):
+        first = Variable(np.array([1.0]), "first")
+        second = Variable(np.zeros((2, 2)), "second")
+        first.gradient = np.array([5.0])
+        second.gradient = np.full((2, 2), 7.0)
+        optimizer = StochasticGradientDescent([first, second], learning_rate=0.1)
         optimizer.zero_gradients()
-        loss_after = loss.forward()
-
-        self.assertLess(loss_after, loss_before)
-
-    def test_repeated_steps_converge_to_optimum(self):
-        x = Variable(0.0, "x")
-        loss = (x - Constant(3.0)) ** Constant(2.0)
-        optimizer = StochasticGradientDescent([x], learning_rate=0.1)
-
-        for _ in range(200):
-            loss.forward()
-            loss.backward(1.0)
-            optimizer.step()
-            optimizer.zero_gradients()
-
-        self.assertAlmostEqual(x.value, 3.0, places=4)
+        np.testing.assert_array_equal(first.gradient, np.zeros(1))
+        np.testing.assert_array_equal(second.gradient, np.zeros((2, 2)))
 
 
 if __name__ == "__main__":

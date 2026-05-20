@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from source.expressions.variable import Variable
 from source.expressions.expression import Expression
-from source.neuron_network.neuron_layer import NeuronLayer
+from source.neuron_network.dense_layer import DenseLayer
+from source.expressions.variable import Variable
 from source.constants import UNIFORM_INITIALIZATION
 
 
@@ -22,20 +22,16 @@ class NeuralNetwork:
             )
 
         self._layer_sizes: List[int] = layer_sizes
-        self._layers: List[NeuronLayer] = [
-            NeuronLayer(
+        self._layers: List[DenseLayer] = [
+            DenseLayer(
                 layer_sizes[i], layer_sizes[i + 1],
                 activations[i], initialization
             )
             for i in range(num_layers)
         ]
 
-    def forward(self, inputs: List[Expression]) -> List[Expression]:
-        if len(inputs) != self._layer_sizes[0]:
-            raise ValueError(
-                f"Expected {self._layer_sizes[0]} inputs, got {len(inputs)}"
-            )
-        current: List[Expression] = inputs
+    def forward(self, inputs: Expression) -> Expression:
+        current: Expression = inputs
         for layer in self._layers:
             current = layer.forward(current)
         return current

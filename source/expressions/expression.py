@@ -1,13 +1,14 @@
+import numpy as np
 from abc import ABC, abstractmethod
 
 
 class Expression(ABC):
     @abstractmethod
-    def forward(self) -> float:
+    def forward(self) -> np.ndarray:
         raise NotImplementedError("Must be implemented")
 
     @abstractmethod
-    def backward(self, gradient: float) -> None:
+    def backward(self, gradient: np.ndarray) -> None:
         raise NotImplementedError("Must be implemented")
 
     @abstractmethod

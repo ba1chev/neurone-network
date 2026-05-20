@@ -34,3 +34,8 @@ ERROR_LEARNING_RATE_NON_POSITIVE = "Learning rate must be positive"
 ERROR_OPTIMIZER_NO_PARAMETERS = "Optimizer requires at least one parameter"
 
 ERROR_UNKNOWN_INITIALIZATION = "Unknown weight initialization scheme"
+
+ERROR_TENSOR_SHAPE_MISMATCH = "Tensor shapes do not match"
+ERROR_BROADCAST_INCOMPATIBLE = "Tensor shapes are not broadcast-compatible"
+ERROR_MATMUL_DIMENSION_MISMATCH = "Inner dimensions do not match for matrix multiplication"
+ERROR_REDUCTION_AXIS_OUT_OF_RANGE = "Reduction axis is out of range for tensor rank"

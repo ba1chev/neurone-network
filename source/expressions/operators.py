@@ -1,9 +1,11 @@
+import numpy as np
 from typing import Union
 
 from source.expressions.constant import Constant
 from source.expressions.expression import Expression
 from source.expressions.unary_expressions.abs_unary_expression import AbsUnaryExpression
 from source.expressions.binary_expressions.power_binary_expression import PowerBinaryExpression
+from source.expressions.binary_expressions.matmul_binary_expression import MatmulBinaryExpression
 from source.expressions.unary_expressions.negation_unary_expression import NegationUnaryExpression
 from source.expressions.binary_expressions.addition_binary_expression import AdditionBinaryExpression
 from source.expressions.binary_expressions.division_binary_expression import DivisionBinaryExpression
@@ -11,11 +13,13 @@ from source.expressions.binary_expressions.subtraction_binary_expression import 
 from source.expressions.binary_expressions.multiplication_binary_expression import MultiplicationBinaryExpression
 
 
-def wrap(other: Union[Expression, int, float]):
+def wrap(other: Union[Expression, np.ndarray, np.floating, int, float]):
     if isinstance(other, Expression):
         return other
-    if isinstance(other, (int, float)):
-        return Constant(float(other))
+    if isinstance(other, np.ndarray):
+        return Constant(other)
+    if isinstance(other, (np.floating, int, float)):
+        return Constant(np.array(float(other)))
     return NotImplemented
 
 
@@ -89,6 +93,20 @@ def rpow_operator(self, other):
     return PowerBinaryExpression(wrapped, self)
 
 
+def matmul_operator(self, other):
+    wrapped = wrap(other)
+    if wrapped is NotImplemented:
+        return NotImplemented
+    return MatmulBinaryExpression(self, wrapped)
+
+
+def rmatmul_operator(self, other):
+    wrapped = wrap(other)
+    if wrapped is NotImplemented:
+        return NotImplemented
+    return MatmulBinaryExpression(wrapped, self)
+
+
 def neg_operator(self):
     return NegationUnaryExpression(self)
 
@@ -99,7 +117,7 @@ def abs_operator(self):
 
 # Mounted on Expression after the fact to break a circular dependency:
 # Expression is the base class of every concrete operator, so it cannot
-# import them at class-definition time.
+# import them at class-definition time
 Expression.__add__ = add_operator
 Expression.__radd__ = radd_operator
 Expression.__sub__ = sub_operator
@@ -110,5 +128,7 @@ Expression.__truediv__ = truediv_operator
 Expression.__rtruediv__ = rtruediv_operator
 Expression.__pow__ = pow_operator
 Expression.__rpow__ = rpow_operator
+Expression.__matmul__ = matmul_operator
+Expression.__rmatmul__ = rmatmul_operator
 Expression.__neg__ = neg_operator
 Expression.__abs__ = abs_operator

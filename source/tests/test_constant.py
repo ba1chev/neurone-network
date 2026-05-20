@@ -1,35 +1,32 @@
 import unittest
+import numpy as np
 
 from source.expressions.constant import Constant
-from source.expressions.expression import Expression
 
 
 class TestConstant(unittest.TestCase):
-    def test_is_expression(self):
-        self.assertIsInstance(Constant(1.0), Expression)
+    def test_value_stored_as_float64(self):
+        constant = Constant(np.array([1, 2, 3]))
+        self.assertEqual(constant._value.dtype, np.float64)
 
     def test_forward_returns_value(self):
-        self.assertEqual(Constant(3.5).forward(), 3.5)
+        constant = Constant(np.array([[1.0, 2.0], [3.0, 4.0]]))
+        np.testing.assert_array_equal(constant.forward(), np.array([[1.0, 2.0], [3.0, 4.0]]))
 
-    def test_forward_with_zero(self):
-        self.assertEqual(Constant(0.0).forward(), 0.0)
+    def test_backward_is_no_op(self):
+        constant = Constant(np.array([1.0]))
+        self.assertIsNone(constant.backward(np.array([5.0])))
 
-    def test_forward_with_negative(self):
-        self.assertEqual(Constant(-7.25).forward(), -7.25)
+    def test_collect_variables_yields_nothing(self):
+        constant = Constant(np.array([1.0, 2.0]))
+        out: list = []
+        seen: set = set()
+        constant._collect_variables(out, seen)
+        self.assertEqual(out, [])
 
-    def test_forward_is_idempotent(self):
-        c = Constant(2.0)
-        self.assertEqual(c.forward(), 2.0)
-        self.assertEqual(c.forward(), 2.0)
-
-    def test_backward_is_noop_and_returns_none(self):
-        c = Constant(4.0)
-        self.assertIsNone(c.backward(1.0))
-        self.assertIsNone(c.backward(-99.0))
-        self.assertEqual(c.forward(), 4.0)
-
-    def test_repr(self):
-        self.assertEqual(repr(Constant(2.0)), "Const(value=2.0)")
+    def test_repr_contains_shape(self):
+        constant = Constant(np.array([[1.0, 2.0]]))
+        self.assertIn("(1, 2)", repr(constant))
 
 
 if __name__ == "__main__":
