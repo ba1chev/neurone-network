@@ -1,11 +1,12 @@
 from source.expressions.expression import Expression
+from source.constants import INITIAL_GRADIENT
 
 
 class Variable(Expression):
     def __init__(self, value: float, name: str) -> None:
         self._name: str = name
         self._value: float = value
-        self._gradient: float = 0.0
+        self._gradient: float = INITIAL_GRADIENT
 
     def forward(self) -> float:
         return self._value
@@ -30,7 +31,7 @@ class Variable(Expression):
         self._gradient = gradient
 
     def zero_gradient(self):
-        self._gradient = 0.0
+        self._gradient = INITIAL_GRADIENT
 
     def _collect_variables(self, out: list, seen: set) -> None:
         if id(self) in seen:
