@@ -6,5 +6,5 @@ class AdditionBinaryExpression(BinaryExpression):
     def __init__(self, left_expr: Expression, right_expr: Expression) -> None:
         super().__init__(left_expr, right_expr)
 
-    def evaluate(self) -> float:
-        return self._left_expr.evaluate() + self._right_expr.evaluate()
+    def forward(self) -> float:
+        return self._left_expr.forward() + self._right_expr.forward()
