@@ -8,3 +8,7 @@ class SubtractionBinaryExpression(BinaryExpression):
 
     def forward(self) -> float:
         return self._left_expr.forward() - self._right_expr.forward()
+    
+    def backward(self, gradient: float) -> None:
+        self._left_expr.backward(gradient)
+        self._right_expr.backward(-gradient)

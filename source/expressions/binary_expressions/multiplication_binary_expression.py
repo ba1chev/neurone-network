@@ -7,4 +7,11 @@ class MultiplicationBinaryExpression(BinaryExpression):
         super().__init__(left_expr, right_expr)
 
     def forward(self) -> float:
-        return self._left_expr.forward() * self._right_expr.forward()
+        # pre-caching for better performance
+        self._left_value = self._left_expr.forward()
+        self._right_value = self._right_expr.forward()
+        return self._left_value * self._right_value
+
+    def backward(self, gradient: float) -> None:
+        self._left_expr.backward(self._right_value * gradient)
+        self._right_expr.backward(self._left_value * gradient)
