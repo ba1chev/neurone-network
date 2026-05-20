@@ -10,6 +10,9 @@ class Constant(Expression):
     
     def backward(self, gradient: float) -> None:
         return
-    
+
+    def _collect_variables(self, out: list, seen: set) -> None:
+        return
+
     def __repr__(self) -> str:
         return f"Const(value={self._value})"
