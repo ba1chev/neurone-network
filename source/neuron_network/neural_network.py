@@ -3,10 +3,11 @@ from typing import List, Optional
 from source.expressions.variable import Variable
 from source.expressions.expression import Expression
 from source.neuron_network.neuron_layer import NeuronLayer
+from source.constants import UNIFORM_INITIALIZATION
 
 
 class NeuralNetwork:
-    def __init__(self, layer_sizes: List[int], activations: Optional[List[Optional[str]]] = None) -> None:
+    def __init__(self, layer_sizes: List[int], activations: Optional[List[Optional[str]]] = None, initialization: str = UNIFORM_INITIALIZATION) -> None:
         if len(layer_sizes) < 2:
             raise ValueError("Network must have at least one input and one output layer")
         if any(size <= 0 for size in layer_sizes):
@@ -22,7 +23,10 @@ class NeuralNetwork:
 
         self._layer_sizes: List[int] = layer_sizes
         self._layers: List[NeuronLayer] = [
-            NeuronLayer(layer_sizes[i], layer_sizes[i + 1], activations[i])
+            NeuronLayer(
+                layer_sizes[i], layer_sizes[i + 1],
+                activations[i], initialization
+            )
             for i in range(num_layers)
         ]
 
